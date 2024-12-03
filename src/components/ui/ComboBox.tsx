@@ -67,12 +67,11 @@ export function ComboBox({ options, initialValue, onSelect, ...props }: ComboBox
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>
-              {/* Virtualize the list using react-window */}
               <List
                 height={Math.min(ITEM_HEIGHT * 5, totalOptions * ITEM_HEIGHT)}  // Render a maximum of 5 items
                 itemCount={totalOptions}
                 itemSize={ITEM_HEIGHT}
-                width={400}
+                width={40000}
               >
                 {({ index, style }) => {
                   const option = options[index];
