@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Button } from "@/components/ui/Button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/Button";
 import {
   Form,
   FormControl,
@@ -11,11 +11,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/Form"
-import { Input } from "@/components/ui/Input"
-import { ComboBox } from "../ui/ComboBox"
-import { useEffect, useState } from "react"
-import axiosInstance from "@/api/axiosInstance"
+} from "@/components/ui/Form";
+import { Input } from "@/components/ui/Input";
+import { ComboBox } from "../ui/ComboBox";
+import { useEffect, useState } from "react";
+import axiosInstance from "@/api/axiosInstance";
 
 interface StockData {
   currency: string;
@@ -33,17 +33,30 @@ interface StockData {
 const FormSchema = z.object({
   priceAlert: z
     .string()
-    .min(1, {
-      message: "Price cannot be empty",
-    })
+    .min(1, { message: "Price cannot be empty" })
     .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
       message: "Price must be a valid number greater or equal to 0",
     }),
-  stock: z.string(),
+  stock: z.string().min(1, { message: "Stock cannot be empty" }),
+});
+
+const socket = new WebSocket("wss://ws.finnhub.io?token=ct77r61r01qr3sdtu12gct77r61r01qr3sdtu130");
+
+socket.addEventListener("open", () => {
+  console.log("WebSocket connection established.");
+});
+
+socket.addEventListener("error", (error) => {
+  console.error("WebSocket error:", error);
+});
+
+socket.addEventListener("close", (event) => {
+  console.log("WebSocket closed:", event.reason);
 });
 
 export function SearchForm() {
   const [data, setData] = useState<StockData[] | null>(null);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -52,29 +65,52 @@ export function SearchForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log('DATA', data);
+  const onSelect = (value: string) => {
+    form.setValue("stock", value);
+  };
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const { stock } = data;
+
+    if (socket.readyState === WebSocket.CONNECTING) {
+      console.log("WebSocket is still connecting...");
+      socket.addEventListener("open", () => {
+        socket.send(JSON.stringify({ type: "subscribe", symbol: stock }));
+        console.log(`Subscribed to ${stock}`);
+      });
+    } else if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "subscribe", symbol: stock }));
+      console.log(`Subscribed to ${stock}`);
+    } else {
+      console.error("WebSocket is not ready or has closed.");
+    }
   }
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axiosInstance.get('/stock/symbol?exchange=US');
+      const response = await axiosInstance.get("/stock/symbol?exchange=US");
       setData(response.data);
     };
 
     fetchData();
+
+    return () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+    };
   }, []);
 
-  const transformedOptions = data ? data.map((item) => ({
-    label: item.displaySymbol,
-    value: item.symbol,
-  })) : [];
-
-  console.log('transformedOptions', transformedOptions);
+  const transformedOptions = data
+    ? data.map((item) => ({
+        label: item.displaySymbol,
+        value: item.symbol,
+      }))
+    : [];
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="priceAlert"
@@ -82,7 +118,7 @@ export function SearchForm() {
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormControl>
-                <Input type="string" placeholder="price" {...field}/>
+                <Input type="string" placeholder="price" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,12 +130,18 @@ export function SearchForm() {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Stock</FormLabel>
-              <ComboBox options={transformedOptions} initialValue={field.value}/>
+              <ComboBox
+                options={transformedOptions}
+                initialValue={field.value}
+                onSelect={onSelect}
+              />
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full">
+          Track
+        </Button>
       </form>
     </Form>
   );
