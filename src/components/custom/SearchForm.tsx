@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,23 +12,8 @@ import {
 } from "@/components/ui/Form";
 import { Input } from "@/components/ui/Input";
 import { ComboBox } from "../ui/ComboBox";
-import { useEffect, useState } from "react";
-import axiosInstance from "@/api/axiosInstance";
 
-interface StockData {
-  currency: string;
-  description: string;
-  displaySymbol: string;
-  figi: string;
-  isin: string | null;
-  mic: string;
-  shareClassFIGI: string;
-  symbol: string;
-  symbol2: string;
-  type: string;
-}
-
-const FormSchema = z.object({
+export const FormSchema = z.object({
   priceAlert: z
     .string()
     .min(1, { message: "Price cannot be empty" })
@@ -40,23 +23,11 @@ const FormSchema = z.object({
   stock: z.string().min(1, { message: "Stock cannot be empty" }),
 });
 
-const socket = new WebSocket("wss://ws.finnhub.io?token=ct77r61r01qr3sdtu12gct77r61r01qr3sdtu130");
+interface SearchFormProps {
+  onFormSubmit: (data: z.infer<typeof FormSchema>) => void;
+}
 
-socket.addEventListener("open", () => {
-  console.log("WebSocket connection established.");
-});
-
-socket.addEventListener("error", (error) => {
-  console.error("WebSocket error:", error);
-});
-
-socket.addEventListener("close", (event) => {
-  console.log("WebSocket closed:", event.reason);
-});
-
-export function SearchForm() {
-  const [data, setData] = useState<StockData[] | null>(null);
-
+export function SearchForm({ onFormSubmit }: SearchFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -69,44 +40,16 @@ export function SearchForm() {
     form.setValue("stock", value);
   };
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const { stock } = data;
-
-    if (socket.readyState === WebSocket.CONNECTING) {
-      console.log("WebSocket is still connecting...");
-      socket.addEventListener("open", () => {
-        socket.send(JSON.stringify({ type: "subscribe", symbol: stock }));
-        console.log(`Subscribed to ${stock}`);
-      });
-    } else if (socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "subscribe", symbol: stock }));
-      console.log(`Subscribed to ${stock}`);
-    } else {
-      console.error("WebSocket is not ready or has closed.");
-    }
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    onFormSubmit(data);
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await axiosInstance.get("/stock/symbol?exchange=US");
-      setData(response.data);
-    };
+  const options = ['BINANCE:BTCUSDT', 'IC MARKETS:2', 'IC MARKETS:1', 'IC MARKETS:5'];
 
-    fetchData();
-
-    return () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.close();
-      }
-    };
-  }, []);
-
-  const transformedOptions = data
-    ? data.map((item) => ({
-        label: item.displaySymbol,
-        value: item.symbol,
-      }))
-    : [];
+  const transformedOptions = options.map((item) => ({
+    label: item,
+    value: item,
+  }));
 
   return (
     <Form {...form}>

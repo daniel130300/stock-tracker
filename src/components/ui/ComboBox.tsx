@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { FixedSizeList as List } from "react-window";
 
 import { cn } from "@/lib/utils";
 import {
@@ -37,16 +36,6 @@ interface ComboBoxProps
 export function ComboBox({ options, initialValue, onSelect, ...props }: ComboBoxProps) {
   const [value, setValue] = React.useState(initialValue);
   const [open, setOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
-
-  const ITEM_HEIGHT = 32;
-
-  // Filter options based on the search query
-  const filteredOptions = searchQuery
-    ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : options;
 
   return (
     <Popover open={open} onOpenChange={setOpen} {...props}>
@@ -69,49 +58,32 @@ export function ComboBox({ options, initialValue, onSelect, ...props }: ComboBox
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput
-            placeholder="Search option..."
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-          />
+          <CommandInput placeholder="Search language..." />
           <CommandList>
-            {filteredOptions.length > 0 ? (
-              <CommandGroup>
-                <List
-                  height={Math.min(ITEM_HEIGHT * 5, filteredOptions.length * ITEM_HEIGHT)}
-                  itemCount={filteredOptions.length}
-                  itemSize={ITEM_HEIGHT}
-                  width={200}
-                >
-                  {({ index, style }) => {
-                    const option = filteredOptions[index];
-                    return (
-                      <CommandItem
-                        value={option.label}
-                        key={option.value}
-                        onSelect={() => {
-                          onSelect?.(option.value);
-                          setValue(option.value);
-                          setOpen(false);
-                          setSearchQuery("");
-                        }}
-                        style={style}
-                      >
-                        {option.label}
-                        <Check
-                          className={cn(
-                            "ml-auto",
-                            option.value === value ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                      </CommandItem>
-                    );
+            <CommandEmpty>No option found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  value={option.label}
+                  key={option.value}
+                  onSelect={() => {
+                    onSelect?.(option.value);
+                    setValue(option.value);
+                    setOpen(false);
                   }}
-                </List>
-              </CommandGroup>
-            ) : (
-              <CommandEmpty>No option found.</CommandEmpty>
-            )}
+                >
+                  {option.label}
+                  <Check
+                    className={cn(
+                      "ml-auto",
+                      option.value === value
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
