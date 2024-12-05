@@ -1,17 +1,16 @@
 import { SearchForm } from "./components/custom/SearchForm";
 import { TopCard } from "./components/custom/TopCard";
 import { Chart } from "./components/custom/Chart";
-import { useState, useEffect } from "react";
-import axiosInstance from "./api/axiosInstance";
+import { useState } from "react";
 import { formatStockPrice } from "./lib/utils";
 import { ISearchForm } from "./types/componentInterfaces";
 import useStockSubscription from "./hooks/useLiveStock";
-import { IStockQuoteData } from "./types/apiInterfaces";
+import { useStock } from "./hooks/useStock";
 
 function App() {
   const [formData, setFormData] = useState<ISearchForm | null>(null);
-  const { liveStock, stockPlotData, setStockPlotData } = useStockSubscription(formData);
-  const [ stockQuote, setStockQuote] = useState<IStockQuoteData | null>(null);
+  const { liveStock, stockPlotData, setStockPlotData } = useStockSubscription(formData?.stock);
+  const { stockQuote } = useStock(formData?.stock);
 
   const marginChange = stockQuote?.o ? 
   ((liveStock?.p ? ((liveStock.p - stockQuote.c) / stockQuote.c) * 100 : 0) || 0) : 0;
@@ -34,20 +33,6 @@ function App() {
     setFormData(data);
     setStockPlotData([]);
   };
-
-  useEffect(() => {
-    if (!formData) return;
-    const fetchStockData = async () => {
-      try {
-        const response = await axiosInstance.get(`/quote?symbol=${encodeURIComponent(formData.stock)}`);
-        setStockQuote(response.data);
-      } catch (error) {
-        console.error("Error fetching stock data:", error);
-      }
-    };
-
-    fetchStockData();
-  }, [formData]);
 
   return (
     <div className="flex flex-col h-screen">

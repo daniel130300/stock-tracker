@@ -1,58 +1,61 @@
 import { useState, useEffect } from "react"; 
 import { IRealTimeStockData, IStockPlotData } from "../types/apiInterfaces";
-import { ISearchForm } from "@/types/componentInterfaces";
+import { useToast } from "./useToast";
+import { genericErrorToast } from "@/lib/utils";
 
 const socket = new WebSocket(`${import.meta.env.VITE_FINNHUB_WEBSOCKET_BASE_URL}?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
 
-const useStockSubscription = (formData: ISearchForm | null) => {
+const useStockSubscription = (stockSymbol: string | null | undefined) => {
   const [stockPlotData, setStockPlotData] = useState<IStockPlotData[]>([]);
   const [liveStock, setLiveStock] = useState<IRealTimeStockData | null>(null);
   const [buffer, setBuffer] = useState<IRealTimeStockData[]>([]);
-  const [error, setError] = useState<string | null>(null); // State to hold error messages
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast()
 
   const MAX_ARRAY_SIZE = import.meta.env.VITE_LIVE_STOCK_MAX_ARRAY_SIZE;
 
   useEffect(() => {
-    if (!formData) return;
+    if (!stockSymbol) return;
+    setIsLoading(true);
 
     const subscribeToStock = () => {
       if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: 'subscribe', symbol: formData.stock }));
+        socket.send(JSON.stringify({ type: 'subscribe', symbol: stockSymbol }));
       } else {
         socket.onopen = () => {
-          socket.send(JSON.stringify({ type: 'subscribe', symbol: formData.stock }));
+          socket.send(JSON.stringify({ type: 'subscribe', symbol: stockSymbol }));
         };
       }
 
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (Array.isArray(data?.data) && data.data.length > 0) {
+          setIsLoading(false);
           setLiveStock(data.data[data.data.length - 1]);
           setBuffer((prevBuffer) => [...prevBuffer, ...data.data]);
         }
       };
 
-      // Handle WebSocket errors
-      socket.onerror = (event) => {
-        setError("WebSocket error occurred: " + event);
-        console.error("WebSocket error:", event);
+      socket.onerror = () => {
+        setIsLoading(false);
+        toast(genericErrorToast())
       };
 
-      // Handle WebSocket closure
-      socket.onclose = (event) => {
-        setError("WebSocket connection closed: " + event.reason);
-        console.warn("WebSocket closed:", event);
+      socket.onclose = () => {
+        setIsLoading(false);
+        toast(genericErrorToast())
       };
     };
 
     subscribeToStock();
     return () => {
       if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: 'unsubscribe', symbol: formData.stock }));
+        socket.send(JSON.stringify({ type: 'unsubscribe', symbol: stockSymbol }));
       }
       setStockPlotData([]);
+      setIsLoading(false);
     };
-  }, [formData]);
+  }, [stockSymbol]);
 
   useEffect(() => {
     if (buffer.length > 0) {
@@ -73,7 +76,14 @@ const useStockSubscription = (formData: ISearchForm | null) => {
     }
   }, [buffer]);
 
-  return { stockPlotData, liveStock, setStockPlotData, setLiveStock, error }; // Return error state
+  return { 
+    stockPlotData, 
+    setStockPlotData,
+    liveStock, 
+    setLiveStock, 
+    isLoading, 
+    setIsLoading 
+  };
 };
 
 export default useStockSubscription;
