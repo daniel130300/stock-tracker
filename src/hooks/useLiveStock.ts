@@ -15,6 +15,11 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
   const MAX_ARRAY_SIZE = import.meta.env.VITE_LIVE_STOCK_MAX_ARRAY_SIZE;
 
   useEffect(() => {
+    setStockPlotData([]);
+    setLiveStock(null);
+    setBuffer([]);
+    setIsLoading(false);
+
     if (!stockSymbol) return;
     setIsLoading(true);
 
