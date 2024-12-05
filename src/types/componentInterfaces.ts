@@ -7,11 +7,12 @@ import { z } from "zod";
 import { IStockPlotData } from "./apiInterfaces";
 
 export interface ChartProps {
-  chartData: IStockPlotData[] | [];
+  chartData: IStockPlotData[] | undefined;
   chartConfig: ChartConfig;
   xAxisProps?: XAxisProps;
   yAxisProps?: YAxisProps;
   areaProps?: AreaProps;
+  isLoading: boolean;
 }
 
 export type ISearchForm = z.infer<typeof FormSchema>
@@ -24,6 +25,7 @@ export interface TopCardProps {
   header: string;
   value: string | number;
   className?: string;
+  isLoading?: boolean;
 }
 
 export interface Option {

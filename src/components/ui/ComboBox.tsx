@@ -46,7 +46,7 @@ export function ComboBox({ options, initialValue, onSelect, ...props }: ComboBox
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search language..." />
+          <CommandInput placeholder="Search option..." />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>

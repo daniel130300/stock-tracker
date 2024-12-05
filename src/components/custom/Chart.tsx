@@ -5,8 +5,17 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/Chart";
 import { ChartProps } from "@/types/componentInterfaces";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-export function Chart({ chartData, chartConfig, xAxisProps, yAxisProps, areaProps }: ChartProps) {
+export function Chart({ chartData, chartConfig, xAxisProps, yAxisProps, areaProps, isLoading }: ChartProps) {
+  if (isLoading) {
+    return (
+      <ChartContainer config={chartConfig}>
+        <Skeleton className="w-full h-full rounded-lg" />
+      </ChartContainer>
+    );
+  }
+
   return (
     <ChartContainer config={chartConfig}>
       <AreaChart
