@@ -39,6 +39,7 @@ export function SearchForm({ onFormSubmit }: SearchFormProps) {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     onFormSubmit(data);
+    form.reset();
   }
 
   const options = ['BINANCE:BTCUSDT', 'IC MARKETS:2', 'IC MARKETS:1', 'IC MARKETS:5'];

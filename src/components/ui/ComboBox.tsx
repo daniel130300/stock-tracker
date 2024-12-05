@@ -25,6 +25,10 @@ export function ComboBox({ options, initialValue, onSelect, ...props }: ComboBox
   const [value, setValue] = React.useState(initialValue);
   const [open, setOpen] = React.useState(false);
 
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
   return (
     <Popover open={open} onOpenChange={setOpen} {...props}>
       <PopoverTrigger asChild>

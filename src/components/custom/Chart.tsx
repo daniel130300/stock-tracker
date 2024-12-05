@@ -21,6 +21,10 @@ export function Chart({ chartData, chartConfig, xAxisProps, yAxisProps, areaProp
       <AreaChart
         accessibilityLayer
         data={chartData}
+        margin={{
+          left: 24,
+          top: 24
+        }}
       >
         <CartesianGrid vertical={false} />
         <XAxis

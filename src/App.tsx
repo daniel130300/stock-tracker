@@ -79,6 +79,9 @@ function App() {
                   tickCount: tickCount,
                   interval: interval,
                 }}
+                yAxisProps={{
+                  tickFormatter: ((value) => formatStockPrice(value))
+                }}
                 isLoading={isLoading || stockQuoteLoading}
               />
             </div>
