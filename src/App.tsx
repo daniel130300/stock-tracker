@@ -6,6 +6,7 @@ import { formatStockPrice } from "./lib/utils";
 import { ISearchForm } from "./types/componentInterfaces";
 import useStockSubscription from "./hooks/useLiveStock";
 import { useStock } from "./hooks/useStock";
+import { Toaster } from "@/components/ui/Toaster";
 
 function App() {
   const [formData, setFormData] = useState<ISearchForm | null>(null);
@@ -91,6 +92,7 @@ function App() {
       <footer className="bg-primary text-primary-foreground p-4 text-center">
         <p>&copy; {new Date().getFullYear()} Stock Tracker App. All rights reserved.</p>
       </footer>
+      <Toaster/>
     </div>
   );
 }
