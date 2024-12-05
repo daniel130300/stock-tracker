@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/Form";
 import { Input } from "@/components/ui/Input";
 import { ComboBox } from "../ui/ComboBox";
+import { SearchFormProps } from "@/types/componentInterfaces";
 
 export const FormSchema = z.object({
   priceAlert: z
@@ -22,10 +23,6 @@ export const FormSchema = z.object({
     }),
   stock: z.string().min(1, { message: "Stock cannot be empty" }),
 });
-
-interface SearchFormProps {
-  onFormSubmit: (data: z.infer<typeof FormSchema>) => void;
-}
 
 export function SearchForm({ onFormSubmit }: SearchFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({

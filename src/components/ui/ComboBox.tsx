@@ -19,19 +19,7 @@ import {
 } from "@/components/ui/Popover";
 import { Button } from "./Button";
 import { FormControl } from "./Form";
-
-interface Option {
-  value: string;
-  label: string;
-}
-
-interface ComboBoxProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "onSelect"> {
-  options: Option[];
-  label?: string;
-  initialValue?: string;
-  onSelect?: (value: string) => void;
-}
+import { ComboBoxProps } from "@/types/componentInterfaces";
 
 export function ComboBox({ options, initialValue, onSelect, ...props }: ComboBoxProps) {
   const [value, setValue] = React.useState(initialValue);
