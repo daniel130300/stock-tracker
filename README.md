@@ -1,3 +1,4 @@
+
 # Stock Tracker App
 
 A modern, fast, and user-friendly stock tracker application built with **Vite**, **React**, and **TypeScript**. This app allows users to monitor stock prices in real-time.
@@ -21,28 +22,34 @@ A modern, fast, and user-friendly stock tracker application built with **Vite**,
 ## 📦 Installation
 
 1. **Clone the repository:**
-  ```bash
-  git clone https://github.com/your-username/stock-tracker.git
-  cd stock-tracker
+    ```bash
+    git clone https://github.com/your-username/stock-tracker.git
+    cd stock-tracker
+    ```
 
 2. **Install dependencies:**
-  ```bash
-  npm install
+    ```bash
+    npm install
+    ```
 
 3. **Set up environment variables:**
-  VITE_FINNHUB_API_KEY
-  VITE_FINNHUB_API_BASE_URL
-  VITE_FINNHUB_WEBSOCKET_BASE_URL
-  VITE_LIVE_STOCK_MAX_ARRAY_SIZE
+    Create a `.env` file in the root of your project and add the following keys:
+    ```
+    VITE_FINNHUB_API_KEY=your_api_key_here
+    VITE_FINNHUB_API_BASE_URL=https://finnhub.io/api/v1
+    VITE_FINNHUB_WEBSOCKET_BASE_URL=wss://ws.finnhub.io
+    VITE_LIVE_STOCK_MAX_ARRAY_SIZE=100
+    ```
 
 4. **Run the development server:**
-  ```bash
-  npm run dev
+    ```bash
+    npm run dev
+    ```
 
 ---
 
 ## 🌟 Usage
 
 1. Search for a stock using the dropdown and set up a price alert.
-2. Monitor real-time updates and historical data charts; if the price falls below the alert you set, it will appear in red, and if it's higher, it will be shown in green.
-3. Change stock to track or price alert to stay updated.
+2. Monitor real-time updates and historical data charts. If the price falls below the alert you set, it will appear in red. If it’s higher, it will be shown in green.
+3. Change the stock you are tracking or adjust the price alert to stay updated.
