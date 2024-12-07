@@ -1,18 +1,26 @@
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js');
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDfiXrYWGyYyML77YdsSc_Zc9NTRkaWNkE",
-  authDomain: "push-notif-bc446.firebaseapp.com",
-  projectId: "push-notif-bc446",
-  storageBucket: "push-notif-bc446.firebasestorage.app",
-  messagingSenderId: "1062950402721",
-  appId: "1:1062950402721:web:3d7801f38448913495cee0"
-}
+self.firebase.initializeApp({
+  apiKey: "%%API_KEY%%",
+  authDomain: "%%AUTH_DOMAIN%%",
+  projectId: "%%PROJECT_ID%%",
+  messagingSenderId: "%%MESSAGING_SENDER_ID%%",
+  appId: "%%APP_ID%%",
+});
 
-firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
+const messaging = self.firebase.messaging();
 
+messaging.onBackgroundMessage(function(payload) {
+  if (payload?.latestPrice >= payload?.priceAlert) return;
+  const notificationTitle = 'Price Alert';
+  const notificationOptions = {
+    body: 'Price Alert',
+  };
+
+  self.registration.showNotification(notificationTitle,
+    notificationOptions);
+});
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -21,10 +29,12 @@ self.addEventListener('install', () => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'websocket-message') {
     const payload = event.data.payload;
-    const notificationTitle = 'Price Under Threshold';
+    if (payload?.latestPrice >= payload?.priceAlert) return;
+    const notificationTitle = 'Price Alert';
     const notificationOptions = {
-      body: payload.latestPrice,
+      body: 'Price Alert',
     };
+    console.log('PAYLOAD', payload);
     self.registration.showNotification(notificationTitle, notificationOptions)
   }
 })

@@ -1,20 +1,18 @@
 import { SearchForm } from "./components/custom/SearchForm";
 import { TopCard } from "./components/custom/TopCard";
 import { Chart } from "./components/custom/Chart";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatStockPrice } from "./lib/utils";
 import { ISearchForm } from "./types/componentInterfaces";
 import useStockSubscription from "./hooks/useLiveStock";
 import { Toaster } from "@/components/ui/Toaster";
-import { requestPermission } from "./request-permission";
+import useRequestPermission from "./hooks/useRequestPermission";
 
 
 function App() {
   const [formData, setFormData] = useState<ISearchForm | null>(null);
   const { liveStock, stockPlotData, isLoading, firstStock } = useStockSubscription(formData);
-  useEffect(() => {
-    requestPermission()
-  }, [])
+  useRequestPermission()
 
   const marginChange = firstStock?.p ? 
   ((liveStock?.p ? ((liveStock.p - firstStock.p) / firstStock.p) * 100 : 0) || 0) : 0;
