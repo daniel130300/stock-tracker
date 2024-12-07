@@ -8,11 +8,8 @@ if ('serviceWorker' in navigator) {
     const swUrl = '/firebase-messaging-sw.js';
     navigator.serviceWorker
       .register(swUrl)
-      .then((registration) => {
-        console.log('Service Worker registrado:', registration);
-      })
       .catch((error) => {
-        console.log('Error al registrar el Service Worker:', error);
+        console.log('Error registering service worker:', error);
       });
   });
 }
