@@ -5,22 +5,20 @@ import { useEffect, useState } from "react";
 import { formatStockPrice } from "./lib/utils";
 import { ISearchForm } from "./types/componentInterfaces";
 import useStockSubscription from "./hooks/useLiveStock";
-import { useStock } from "./hooks/useStock";
 import { Toaster } from "@/components/ui/Toaster";
 import { requestPermission } from "./request-permission";
 
 
 function App() {
   const [formData, setFormData] = useState<ISearchForm | null>(null);
-  const { liveStock, stockPlotData, setStockPlotData, isLoading, setLiveStock } = useStockSubscription(formData?.stock);
-  const { stockQuote, isLoading: stockQuoteLoading, setStockQuote } = useStock(formData?.stock);
+  const { liveStock, stockPlotData, isLoading, firstStock } = useStockSubscription(formData?.stock);
   useEffect(() => {
     requestPermission()
   }, [])
 
-  const marginChange = stockQuote?.o ? 
-  ((liveStock?.p ? ((liveStock.p - stockQuote.c) / stockQuote.c) * 100 : 0) || 0) : 0;
-  const formattedMarginChange = marginChange ? `${marginChange.toFixed(2)}%` : '0%';
+  const marginChange = firstStock?.p ? 
+  ((liveStock?.p ? ((liveStock.p - firstStock.p) / firstStock.p) * 100 : 0) || 0) : 0;
+  const formattedMarginChange = marginChange ? `${marginChange.toFixed(2)}%` : '0.00%';
 
   const mobileTickCount = 2;
   const tabletTickCount = 3; 
@@ -37,9 +35,6 @@ function App() {
 
   const handleFormSubmit = (data: ISearchForm) => {
     setFormData(data);
-    setStockPlotData([]);
-    setLiveStock(null);
-    setStockQuote(null);
   };
 
   return (
@@ -53,19 +48,19 @@ function App() {
             <TopCard 
               header="Name" 
               value={liveStock?.s || "N/A"} 
-              isLoading={isLoading || stockQuoteLoading}
+              isLoading={isLoading}
             />
             <TopCard
               header="Price" 
               className={liveStock?.p && formData?.priceAlert && liveStock.p < parseFloat(formData.priceAlert) ? 'text-red-500' : ''}
               value={liveStock?.p ? formatStockPrice(liveStock.p) : '0'}
-              isLoading={isLoading || stockQuoteLoading}
+              isLoading={isLoading}
             />
             <TopCard 
               header="Margin Change" 
               className={marginChange < 0 ? 'text-red-500' : ''}
               value={formattedMarginChange} 
-              isLoading={isLoading || stockQuoteLoading}
+              isLoading={isLoading}
             />
           </section>
           <section className="flex flex-col md:flex-row flex-1 items-center space-y-12">
@@ -88,7 +83,7 @@ function App() {
                 yAxisProps={{
                   tickFormatter: ((value) => formatStockPrice(value))
                 }}
-                isLoading={isLoading || stockQuoteLoading}
+                isLoading={isLoading}
               />
             </div>
           </section>

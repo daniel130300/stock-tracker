@@ -1,50 +1,55 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Stock Tracker App
 
-Currently, two official plugins are available:
+A modern, fast, and user-friendly stock tracker application built with **Vite**, **React**, and **TypeScript**. This app allows users to monitor stock prices in real-time.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- 📈 Real-time stock price updates.
+- 📊 Historical data visualization using interactive charts.
+- 🔍 Search and filter stocks by name.
+- 🔔 Customizable price alerts.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 🛠 Tech Stack
 
-- Configure the top-level `parserOptions` property like this:
+- **Frontend Framework:** React (with TypeScript for type safety)
+- **Build Tool:** Vite (for fast development and builds)
+- **Charting Library:** Recharts
+- **Styling:** TailwindCSS / ShadCDN UI
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 📦 Installation
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/stock-tracker.git
+    cd stock-tracker
+    ```
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+2. **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3. **Set up environment variables:**
+    Create a `.env` file in the root of your project and add the following keys:
+    ```
+    VITE_FINNHUB_API_KEY=your_api_key_here
+    VITE_FINNHUB_API_BASE_URL=https://finnhub.io/api/v1
+    VITE_FINNHUB_WEBSOCKET_BASE_URL=wss://ws.finnhub.io
+    VITE_LIVE_STOCK_MAX_ARRAY_SIZE=100
+    ```
+
+4. **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+
+---
+
+## 🌟 Usage
+
+1. Search for a stock using the dropdown and set up a price alert.
+2. Monitor real-time updates and historical data charts. If the price falls below the alert you set, it will appear in red. If it’s higher, it will be shown in green.
+3. Change the stock you are tracking or adjust the price alert to stay updated.

@@ -9,6 +9,7 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
   const [stockPlotData, setStockPlotData] = useState<IStockPlotData[]>([]);
   const [liveStock, setLiveStock] = useState<IRealTimeStockData | null>(null);
   const [buffer, setBuffer] = useState<IRealTimeStockData[]>([]);
+  const [firstStock, setFirstStock] = useState<IRealTimeStockData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast()
 
@@ -19,7 +20,8 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
     setLiveStock(null);
     setBuffer([]);
     setIsLoading(false);
-
+    setFirstStock(null);
+    
     if (!stockSymbol) return;
     setIsLoading(true);
 
@@ -35,15 +37,20 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (Array.isArray(data?.data) && data.data.length > 0) {
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.controller?.postMessage({
-              type: 'websocket-message',
-              payload: data.data,
-            });
+          // Only process data if the symbols match
+          if (data.data[0].s === stockSymbol) {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.controller?.postMessage({
+                type: 'websocket-message',
+                payload: data.data,
+              });
+            }
+            setIsLoading(false);
+            const latestStock = data.data[data.data.length - 1];
+            setLiveStock(latestStock);
+            setFirstStock(prevFirstStock => prevFirstStock === null ? latestStock : prevFirstStock);
+            setBuffer((prevBuffer) => [...prevBuffer, ...data.data]);
           }
-          setIsLoading(false);
-          setLiveStock(data.data[data.data.length - 1]);
-          setBuffer((prevBuffer) => [...prevBuffer, ...data.data]);
         }
       };
 
@@ -93,7 +100,9 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
     liveStock, 
     setLiveStock, 
     isLoading, 
-    setIsLoading 
+    setIsLoading,
+    firstStock,
+    setFirstStock
   };
 };
 
