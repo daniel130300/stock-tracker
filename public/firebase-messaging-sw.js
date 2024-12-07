@@ -23,6 +23,10 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'websocket-message') {
     const payload = event.data.payload;
