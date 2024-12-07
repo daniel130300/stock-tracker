@@ -35,6 +35,12 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (Array.isArray(data?.data) && data.data.length > 0) {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.controller?.postMessage({
+              type: 'websocket-message',
+              payload: data.data,
+            });
+          }
           setIsLoading(false);
           setLiveStock(data.data[data.data.length - 1]);
           setBuffer((prevBuffer) => [...prevBuffer, ...data.data]);
