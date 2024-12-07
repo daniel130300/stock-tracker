@@ -14,8 +14,6 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message: ', payload);
-
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
@@ -28,12 +26,10 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'websocket-message') {
     const payload = event.data.payload;
-    // Crear una notificación a partir del mensaje del WebSocket
-    const notificationTitle = payload.title || 'Mensaje recibido';
+    const notificationTitle = 'Price Under Threshold';
     const notificationOptions = {
-      body: payload.body || 'Tienes un nuevo mensaje',
-      icon: payload.icon || '/default-icon.png',
+      body: payload.latestPrice,
     };
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    self.registration.showNotification(notificationTitle, notificationOptions)
   }
 })

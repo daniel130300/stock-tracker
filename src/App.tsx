@@ -11,7 +11,7 @@ import { requestPermission } from "./request-permission";
 
 function App() {
   const [formData, setFormData] = useState<ISearchForm | null>(null);
-  const { liveStock, stockPlotData, isLoading, firstStock } = useStockSubscription(formData?.stock);
+  const { liveStock, stockPlotData, isLoading, firstStock } = useStockSubscription(formData);
   useEffect(() => {
     requestPermission()
   }, [])

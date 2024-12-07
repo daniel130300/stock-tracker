@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { IRealTimeStockData, IStockPlotData } from "../types/apiInterfaces";
 import { useToast } from "./useToast";
 import { genericErrorToast } from "@/lib/utils";
+import { ISearchForm } from "@/types/componentInterfaces";
 
 const socket = new WebSocket(`${import.meta.env.VITE_FINNHUB_WEBSOCKET_BASE_URL}?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
 
-const useStockSubscription = (stockSymbol: string | null | undefined) => {
+const useStockSubscription = (formData: ISearchForm | null) => {
   const [stockPlotData, setStockPlotData] = useState<IStockPlotData[]>([]);
   const [liveStock, setLiveStock] = useState<IRealTimeStockData | null>(null);
   const [buffer, setBuffer] = useState<IRealTimeStockData[]>([]);
@@ -22,15 +23,15 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
     setIsLoading(false);
     setFirstStock(null);
     
-    if (!stockSymbol) return;
+    if (!formData) return;
     setIsLoading(true);
 
     const subscribeToStock = () => {
       if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: 'subscribe', symbol: stockSymbol }));
+        socket.send(JSON.stringify({ type: 'subscribe', symbol: formData.stock }));
       } else {
         socket.onopen = () => {
-          socket.send(JSON.stringify({ type: 'subscribe', symbol: stockSymbol }));
+          socket.send(JSON.stringify({ type: 'subscribe', symbol: formData.stock }));
         };
       }
 
@@ -38,11 +39,11 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
         const data = JSON.parse(event.data);
         if (Array.isArray(data?.data) && data.data.length > 0) {
           // Only process data if the symbols match
-          if (data.data[0].s === stockSymbol) {
+          if (data.data[0].s === formData.stock) {
             if ('serviceWorker' in navigator) {
               navigator.serviceWorker.controller?.postMessage({
                 type: 'websocket-message',
-                payload: data.data,
+                payload: {latestPrice: data?.data[data.data.length - 1].p, priceAlert: formData.priceAlert},
               });
             }
             setIsLoading(false);
@@ -68,12 +69,12 @@ const useStockSubscription = (stockSymbol: string | null | undefined) => {
     subscribeToStock();
     return () => {
       if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: 'unsubscribe', symbol: stockSymbol }));
+        socket.send(JSON.stringify({ type: 'unsubscribe', symbol: formData.stock }));
       }
       setStockPlotData([]);
       setIsLoading(false);
     };
-  }, [stockSymbol]);
+  }, [formData]);
 
   useEffect(() => {
     if (buffer.length > 0) {
